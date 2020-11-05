@@ -1,5 +1,6 @@
 package com.example.citysearch
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Layout
@@ -8,15 +9,28 @@ import android.widget.Button
 
 class MainActivity : AppCompatActivity() {
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.mainpage)
 
         val countrySearchButton = findViewById<Button>(R.id.countrySearchButton)
-        countrySearchButton.setOnClickListener{setContentView(R.layout.searchpage)}
+        countrySearchButton.setOnClickListener{searchForCountry()}
 
         val citySearchButton = findViewById<Button>(R.id.citySearchButton)
-        citySearchButton.setOnClickListener{setContentView(R.layout.searchpage)}
+        citySearchButton.setOnClickListener{searchForCity()}
+    }
+
+    fun searchForCity(){
+        goToSearchPage(State.CITYVIEW)
+    }
+
+    fun searchForCountry(){
+        goToSearchPage(State.COUNTRYVIEW)
+    }
+
+    private fun goToSearchPage(state: State){
+        val intent = Intent(this@MainActivity,SearchActivity::class.java)
+        intent.putExtra("State", state)
+        startActivity(intent)
     }
 }
