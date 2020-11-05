@@ -22,6 +22,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <SearchView
+        android:id="@+id/searchView"
         android:layout_width="202dp"
         android:layout_height="40dp"
         android:layout_marginTop="324dp"
@@ -33,5 +34,14 @@
         android:layout_width="88dp"
         android:layout_height="48dp"
         android:text="back" />
+
+    <Button
+        android:id="@+id/searchButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="search"
+        app:layout_constraintTop_toBottomOf="@+id/searchView"
+        tools:layout_editor_absoluteX="159dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
