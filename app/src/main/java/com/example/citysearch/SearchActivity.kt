@@ -9,6 +9,10 @@ import android.widget.Button
 import android.widget.SearchView
 import android.widget.TextView
 
+/**
+ * Class responsible for containing the functionality for the layout searchpage.xml
+ */
+
 class SearchActivity : AppCompatActivity(){
     private lateinit var state: State
     private lateinit var searchBar: SearchView

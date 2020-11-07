@@ -7,6 +7,10 @@ import android.text.Layout
 import android.view.View
 import android.widget.Button
 
+/**
+ * Class responsible for containing the functionality for the layout mainpage.xml
+ */
+
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

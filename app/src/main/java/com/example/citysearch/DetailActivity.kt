@@ -16,6 +16,9 @@ import com.google.gson.GsonBuilder
 import okhttp3.*
 import java.io.IOException
 
+/**
+ * Class responsible for containing the functionality for the layout detailpage.xml
+ */
 
 class DetailActivity : AppCompatActivity(){
     private lateinit var adapter: ArrayAdapter<String>
