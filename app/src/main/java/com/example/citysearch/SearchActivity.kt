@@ -3,11 +3,15 @@ package com.example.citysearch
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Message
 import android.widget.Button
+import android.widget.SearchView
 import android.widget.TextView
 
-class SearchActivity : AppCompatActivity() {
+class SearchActivity : AppCompatActivity(){
     private lateinit var state: State
+    private lateinit var searchBar: SearchView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,6 +26,22 @@ class SearchActivity : AppCompatActivity() {
         state = intent.getSerializableExtra("State") as State
         prepareContent(state)
 
+        searchBar = findViewById(R.id.searchBar)
+        searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+            override fun onQueryTextChange(s: String): Boolean {
+                //do nothing
+                return true
+            }
+
+            override fun onQueryTextSubmit(s: String): Boolean {
+                goToDetailPage()
+                return true
+            }
+        })
+
+
+
 
     }
 
@@ -33,6 +53,7 @@ class SearchActivity : AppCompatActivity() {
     fun goToDetailPage(){
         val intent = Intent(this@SearchActivity, DetailActivity::class.java)
         intent.putExtra("State", state)
+        intent.putExtra("ItemCategory", searchBar.query.toString())
         startActivity(intent)
     }
 
