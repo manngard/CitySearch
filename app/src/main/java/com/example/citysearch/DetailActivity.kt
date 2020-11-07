@@ -23,6 +23,7 @@ import java.io.IOException
 class DetailActivity : AppCompatActivity(){
     private lateinit var adapter: ArrayAdapter<String>
     private val itemList: MutableList<String> = mutableListOf()
+    private val populationMap: MutableMap<String,Int> = hashMapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +59,7 @@ class DetailActivity : AppCompatActivity(){
         flowPane.adapter = adapter
 
         fun fetchJson() {
-            val request = getRequest(intent.getSerializableExtra("State") as State)
+            val request = getRequest()
             val client = OkHttpClient()
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) throw IOException("Error: $response")
@@ -66,19 +67,32 @@ class DetailActivity : AppCompatActivity(){
                 val gson = GsonBuilder().create()
                 for (CityInfo in gson.fromJson(body, Reply::class.java).geonames){
                     itemList.add(CityInfo.name.toUpperCase())
+                    populationMap[CityInfo.name.toUpperCase()] = CityInfo.population
                 }
             }
         }
 
-        fetchJson()
+        when(intent.getSerializableExtra("State")){
+            State.COUNTRYVIEW -> {
+                flowPane.setOnItemClickListener { adapterView, view, i, l ->
+                    val city = adapterView.getItemAtPosition(i).toString()
+                    val population = populationMap[city]
+                    goToCityDetails(city,population.toString())
+                }
+                fetchJson()
+            }
+            State.CITYVIEW ->{
+                itemList.add("Population" + "\n" + intent.getStringExtra("Population"))
+            }
+        }
+
         adapter.notifyDataSetChanged()
+
 
     }
 
-    fun getRequest(state: State): Request{
-        val request = Request.Builder()
-        when(state){
-            State.COUNTRYVIEW -> return request.url(HttpUrl.Builder()
+    fun getRequest(): Request{
+        return Request.Builder().url(HttpUrl.Builder()
                     .scheme("https")
                     .host("secure.geonames.org")
                     .addPathSegment("search")
@@ -87,17 +101,6 @@ class DetailActivity : AppCompatActivity(){
                     .addQueryParameter("type", "json")
                     .addQueryParameter("orderby", "relevance")
                     .addQueryParameter("username", "weknowit").build().toString()).build()
-           // State.COUNTRYVIEW ->  //TODO set behavior for this state
-        }
-        return request.url(HttpUrl.Builder() //TODO remove this when behavior is set for state COUNTRYVIEW
-                .scheme("https")
-                .host("secure.geonames.org")
-                .addPathSegment("search")
-                .addQueryParameter("country", intent.getStringExtra("ItemCategory"))
-                .addQueryParameter("maxRows", "6")
-                .addQueryParameter("type", "json")
-                .addQueryParameter("orderby", "relevance")
-                .addQueryParameter("username", "weknowit").build().toString()).build()
     }
 
     fun goToMainPage() {
@@ -105,10 +108,18 @@ class DetailActivity : AppCompatActivity(){
         startActivity(intent)
     }
 
+    fun goToCityDetails(city: String, population: String){
+        val intent = Intent(this@DetailActivity, DetailActivity::class.java)
+        intent.putExtra("State", State.CITYVIEW)
+        intent.putExtra("City", city)
+        intent.putExtra("Population", population)
+        startActivity(intent)
+    }
+
     fun setTitle(state: State){
         val detailTitle = findViewById<TextView>(R.id.detailTitle)
         when(state){
-            State.CITYVIEW -> detailTitle.text = "Paris" //TODO get this dynamically from API
+            State.CITYVIEW -> detailTitle.text = intent.getStringExtra("City")
             State.COUNTRYVIEW -> detailTitle.text = intent.getStringExtra("ItemCategory")
         }
     }
