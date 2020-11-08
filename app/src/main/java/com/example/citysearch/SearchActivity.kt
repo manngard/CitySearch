@@ -3,8 +3,6 @@ package com.example.citysearch
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Message
 import android.widget.Button
 import android.widget.SearchView
 import android.widget.TextView
@@ -26,6 +24,12 @@ class SearchActivity : AppCompatActivity(){
 
         val searchButton = findViewById<Button>(R.id.searchButton)
         searchButton.setOnClickListener{goToDetailPage()}
+
+        val errorMessage = findViewById<TextView>(R.id.errorMessage)
+
+        if (intent.getStringExtra("Error") != null){
+            errorMessage.text = intent.getStringExtra("Error")
+        }
 
         state = intent.getSerializableExtra("State") as State
         prepareContent(state)
@@ -52,6 +56,7 @@ class SearchActivity : AppCompatActivity(){
     fun goToMainPage() {
         val intent = Intent(this@SearchActivity, MainActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     fun goToDetailPage(){
@@ -59,6 +64,7 @@ class SearchActivity : AppCompatActivity(){
         intent.putExtra("State", state)
         intent.putExtra("ItemCategory", searchBar.query.toString())
         startActivity(intent)
+        finish()
     }
 
     fun prepareContent(state: State){

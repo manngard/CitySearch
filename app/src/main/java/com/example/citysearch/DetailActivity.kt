@@ -12,6 +12,7 @@ import android.widget.Button
 import android.widget.GridView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.citysearch.dataclasses.Reply
 import com.google.gson.GsonBuilder
 import okhttp3.*
 import java.io.IOException
@@ -64,7 +65,11 @@ class DetailActivity : AppCompatActivity(){
                 if (!response.isSuccessful) throw IOException("Error: $response")
                 val body = response.body?.string()
                 val gson = GsonBuilder().create()
-                for (CityInfo in gson.fromJson(body, Reply::class.java).geonames){
+                val parsedResponse = gson.fromJson(body, Reply::class.java)
+                if (parsedResponse.totalResultsCount == 0){
+                    invalidQuery(state)
+                }
+                for (CityInfo in parsedResponse.geonames){
                     itemList.add(CityInfo.name.toUpperCase())
                     populationMap[CityInfo.name.toUpperCase()] = CityInfo.population
                 }
@@ -82,7 +87,7 @@ class DetailActivity : AppCompatActivity(){
             }
             State.CITYVIEW ->{
                 var population = intent.getStringExtra("Population")
-                if (population == null){ //lookathis
+                if (population == null){
                     val city = intent.getStringExtra("ItemCategory") as String
                     fetchJson(citySearchRequest(city))
                     population = populationMap[city.toUpperCase()].toString()
@@ -125,6 +130,7 @@ class DetailActivity : AppCompatActivity(){
     fun goToMainPage() {
         val intent = Intent(this@DetailActivity, MainActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     fun goToCityDetails(city: String, population: String){
@@ -133,6 +139,18 @@ class DetailActivity : AppCompatActivity(){
         intent.putExtra("City", city)
         intent.putExtra("Population", population)
         startActivity(intent)
+        finish()
+    }
+    fun invalidQuery(state: State){
+        val intent = Intent(this@DetailActivity, SearchActivity::class.java)
+        intent.putExtra("State", state)
+        val errorMessage = when(state){
+            State.COUNTRYVIEW -> "Your chosen country was not found"
+            State.CITYVIEW -> "Your chosen city was not found"
+        }
+        intent.putExtra("Error", errorMessage)
+        startActivity(intent)
+        finish()
     }
 
     fun setTitle(state: State){
