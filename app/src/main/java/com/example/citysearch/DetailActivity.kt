@@ -64,7 +64,12 @@ class DetailActivity : AppCompatActivity(){
                 if (!response.isSuccessful) throw IOException("Error: $response")
                 val body = response.body?.string()
                 val gson = GsonBuilder().create()
-                for (CityInfo in gson.fromJson(body, Reply::class.java).geonames){
+                val parsedResponse = gson.fromJson(body, Reply::class.java)
+                if (parsedResponse.totalResultsCount == 0){
+                    invalidQuery(state)
+                    finish()
+                }
+                for (CityInfo in parsedResponse.geonames){
                     itemList.add(CityInfo.name.toUpperCase())
                     populationMap[CityInfo.name.toUpperCase()] = CityInfo.population
                 }
@@ -132,6 +137,16 @@ class DetailActivity : AppCompatActivity(){
         intent.putExtra("State", State.CITYVIEW)
         intent.putExtra("City", city)
         intent.putExtra("Population", population)
+        startActivity(intent)
+    }
+    fun invalidQuery(state: State){
+        val intent = Intent(this@DetailActivity, SearchActivity::class.java)
+        intent.putExtra("State", state)
+        val errorMessage = when(state){
+            State.COUNTRYVIEW -> "Your chosen country was not found"
+            State.CITYVIEW -> "Your chosen city was not found"
+        }
+        intent.putExtra("Error", errorMessage)
         startActivity(intent)
     }
 

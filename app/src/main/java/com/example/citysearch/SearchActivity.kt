@@ -27,6 +27,12 @@ class SearchActivity : AppCompatActivity(){
         val searchButton = findViewById<Button>(R.id.searchButton)
         searchButton.setOnClickListener{goToDetailPage()}
 
+        val errorMessage = findViewById<TextView>(R.id.errorMessage)
+
+        if (intent.getStringExtra("Error") != null){
+            errorMessage.text = intent.getStringExtra("Error")
+        }
+
         state = intent.getSerializableExtra("State") as State
         prepareContent(state)
 
