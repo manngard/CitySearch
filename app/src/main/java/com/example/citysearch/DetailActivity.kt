@@ -23,7 +23,7 @@ import java.io.IOException
 class DetailActivity : AppCompatActivity(){
     private lateinit var adapter: ArrayAdapter<String>
     private val itemList: MutableList<String> = mutableListOf()
-    private val populationMap: MutableMap<String,Int> = hashMapOf()
+    private val populationMap: MutableMap<String, Long> = hashMapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,8 +58,7 @@ class DetailActivity : AppCompatActivity(){
 
         flowPane.adapter = adapter
 
-        fun fetchJson() {
-            val request = getRequest()
+        fun fetchJson(request: Request) {
             val client = OkHttpClient()
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) throw IOException("Error: $response")
@@ -72,17 +71,23 @@ class DetailActivity : AppCompatActivity(){
             }
         }
 
-        when(intent.getSerializableExtra("State")){
+        when(state){
             State.COUNTRYVIEW -> {
                 flowPane.setOnItemClickListener { adapterView, view, i, l ->
                     val city = adapterView.getItemAtPosition(i).toString()
                     val population = populationMap[city]
                     goToCityDetails(city,population.toString())
                 }
-                fetchJson()
+                fetchJson(countrySearchRequest())
             }
             State.CITYVIEW ->{
-                itemList.add("Population" + "\n" + intent.getStringExtra("Population"))
+                var population = intent.getStringExtra("Population")
+                if (population == null){ //lookathis
+                    val city = intent.getStringExtra("ItemCategory") as String
+                    fetchJson(citySearchRequest(city))
+                    population = populationMap[city.toUpperCase()].toString()
+                }
+                itemList.add("Population\n$population")
             }
         }
 
@@ -91,16 +96,30 @@ class DetailActivity : AppCompatActivity(){
 
     }
 
-    fun getRequest(): Request{
+    fun countrySearchRequest(): Request{
         return Request.Builder().url(HttpUrl.Builder()
                     .scheme("https")
                     .host("secure.geonames.org")
                     .addPathSegment("search")
                     .addQueryParameter("country", intent.getStringExtra("ItemCategory"))
+                    .addQueryParameter("featureClass", "P")
                     .addQueryParameter("maxRows", "5")
                     .addQueryParameter("type", "json")
-                    .addQueryParameter("orderby", "relevance")
+                    .addQueryParameter("orderby", "population")
                     .addQueryParameter("username", "weknowit").build().toString()).build()
+    }
+
+    fun citySearchRequest(city: String): Request{
+        return Request.Builder().url(HttpUrl.Builder()
+                .scheme("https")
+                .host("secure.geonames.org")
+                .addPathSegment("search")
+                .addQueryParameter("name_equals", city)
+                .addQueryParameter("featureClass", "P")
+                .addQueryParameter("maxRows", "1")
+                .addQueryParameter("type", "json")
+                .addQueryParameter("orderby", "population")
+                .addQueryParameter("username", "weknowit").build().toString()).build()
     }
 
     fun goToMainPage() {
