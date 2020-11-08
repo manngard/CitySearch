@@ -12,6 +12,7 @@ import android.widget.Button
 import android.widget.GridView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.citysearch.dataclasses.Reply
 import com.google.gson.GsonBuilder
 import okhttp3.*
 import java.io.IOException
@@ -67,7 +68,6 @@ class DetailActivity : AppCompatActivity(){
                 val parsedResponse = gson.fromJson(body, Reply::class.java)
                 if (parsedResponse.totalResultsCount == 0){
                     invalidQuery(state)
-                    finish()
                 }
                 for (CityInfo in parsedResponse.geonames){
                     itemList.add(CityInfo.name.toUpperCase())
@@ -87,7 +87,7 @@ class DetailActivity : AppCompatActivity(){
             }
             State.CITYVIEW ->{
                 var population = intent.getStringExtra("Population")
-                if (population == null){ //lookathis
+                if (population == null){
                     val city = intent.getStringExtra("ItemCategory") as String
                     fetchJson(citySearchRequest(city))
                     population = populationMap[city.toUpperCase()].toString()
@@ -130,6 +130,7 @@ class DetailActivity : AppCompatActivity(){
     fun goToMainPage() {
         val intent = Intent(this@DetailActivity, MainActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     fun goToCityDetails(city: String, population: String){
@@ -138,6 +139,7 @@ class DetailActivity : AppCompatActivity(){
         intent.putExtra("City", city)
         intent.putExtra("Population", population)
         startActivity(intent)
+        finish()
     }
     fun invalidQuery(state: State){
         val intent = Intent(this@DetailActivity, SearchActivity::class.java)
@@ -148,6 +150,7 @@ class DetailActivity : AppCompatActivity(){
         }
         intent.putExtra("Error", errorMessage)
         startActivity(intent)
+        finish()
     }
 
     fun setTitle(state: State){

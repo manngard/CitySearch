@@ -3,8 +3,6 @@ package com.example.citysearch
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Layout
-import android.view.View
 import android.widget.Button
 
 /**
@@ -36,5 +34,6 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this@MainActivity,SearchActivity::class.java)
         intent.putExtra("State", state)
         startActivity(intent)
+        finish()
     }
 }

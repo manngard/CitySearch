@@ -1,4 +1,4 @@
-package com.example.citysearch
+package com.example.citysearch.dataclasses
 
 /**
  * Data class holding the information of a CityInfo-object
