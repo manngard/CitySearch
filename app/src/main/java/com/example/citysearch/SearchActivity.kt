@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.SearchView
 import android.widget.TextView
+import java.util.*
 
 /**
  * Class responsible for containing the functionality for the layout searchpage.xml
@@ -47,11 +48,10 @@ class SearchActivity : AppCompatActivity(){
                 return true
             }
         })
-
-
-
-
     }
+
+    fun getCountryCode(countryName: String) =
+            Locale.getISOCountries().find { Locale("", it).displayCountry == countryName }
 
     fun goToMainPage() {
         val intent = Intent(this@SearchActivity, MainActivity::class.java)
@@ -61,8 +61,10 @@ class SearchActivity : AppCompatActivity(){
 
     fun goToDetailPage(){
         val intent = Intent(this@SearchActivity, DetailActivity::class.java)
+        val query = searchBar.query.toString()
         intent.putExtra("State", state)
-        intent.putExtra("ItemCategory", searchBar.query.toString())
+        intent.putExtra("ItemCategory", query.capitalizeAllWords())
+        intent.putExtra("CountryCode", getCountryCode(query.capitalizeAllWords()))
         startActivity(intent)
         finish()
     }
@@ -75,4 +77,6 @@ class SearchActivity : AppCompatActivity(){
             State.COUNTRYVIEW -> pageTitle.text = "Search by country"
         }
     }
+
+    fun String.capitalizeAllWords(): String = split(" ").map { it.capitalize() }.joinToString(" ")
 }

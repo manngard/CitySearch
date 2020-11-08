@@ -83,7 +83,13 @@ class DetailActivity : AppCompatActivity(){
                     val population = populationMap[city]
                     goToCityDetails(city,population.toString())
                 }
-                fetchJson(countrySearchRequest())
+                val countryCode = intent.getStringExtra("CountryCode")
+                if (countryCode != null){
+                    fetchJson(countrySearchRequest(countryCode))
+                }
+                else{
+                    invalidQuery(state)
+                }
             }
             State.CITYVIEW ->{
                 var population = intent.getStringExtra("Population")
@@ -101,12 +107,12 @@ class DetailActivity : AppCompatActivity(){
 
     }
 
-    fun countrySearchRequest(): Request{
+    fun countrySearchRequest(countryCode: String): Request{
         return Request.Builder().url(HttpUrl.Builder()
                     .scheme("https")
                     .host("secure.geonames.org")
                     .addPathSegment("search")
-                    .addQueryParameter("country", intent.getStringExtra("ItemCategory"))
+                    .addQueryParameter("country", countryCode)
                     .addQueryParameter("featureClass", "P")
                     .addQueryParameter("maxRows", "5")
                     .addQueryParameter("type", "json")
