@@ -13,7 +13,6 @@ import android.widget.GridView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.citysearch.dataclasses.APIHandler
-import com.example.citysearch.dataclasses.Reply
 import java.lang.IndexOutOfBoundsException
 
 /**
@@ -108,11 +107,22 @@ class DetailActivity : AppCompatActivity(){
         adapter.notifyDataSetChanged()
     }
 
+    /**
+     * Switches page to a new MainActivity
+     */
+
     private fun goToMainPage() {
         val intent = Intent(this@DetailActivity, MainActivity::class.java)
         startActivity(intent)
         finish()
     }
+
+    /**
+     * Switches page to a new DetailActivity
+     *
+     * @param city - The city shown in the DetailActivity created
+     * @param population - The population of the city shown in the created DetailActivity
+     */
 
     private fun goToCityDetails(city: String, population: String){
         val intent = Intent(this@DetailActivity, DetailActivity::class.java)
@@ -122,6 +132,13 @@ class DetailActivity : AppCompatActivity(){
         startActivity(intent)
         finish()
     }
+
+    /**
+     * Switches page back to a SearchActivity displaying the appropriate error
+     *
+     * @param state - The state of the application before the invalid query was searched
+     */
+
     private fun invalidQuery(state: State){
         val intent = Intent(this@DetailActivity, SearchActivity::class.java)
         intent.putExtra("State", state)
@@ -133,6 +150,12 @@ class DetailActivity : AppCompatActivity(){
         startActivity(intent)
         finish()
     }
+
+    /**
+     * Sets the title of current page
+     *
+     * @param state - The state of current application page
+     */
 
     private fun setTitle(state: State){
         val detailTitle = findViewById<TextView>(R.id.detailTitle)

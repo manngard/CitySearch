@@ -56,12 +56,19 @@ class SearchActivity : AppCompatActivity(){
     }
 
 
+    /**
+     * Switches page to a new MainActivity
+     */
 
     private fun goToMainPage() {
         val intent = Intent(this@SearchActivity, MainActivity::class.java)
         startActivity(intent)
         finish()
     }
+
+    /**
+     * Shows loadingIndicator and when content for new DetailActivity is loaded goes to that page
+     */
 
     private fun goToDetailPage(){
         loadingIndicator.visibility = View.VISIBLE
@@ -74,6 +81,12 @@ class SearchActivity : AppCompatActivity(){
         finish()
     }
 
+    /**
+     * Sets the title of current page
+     *
+     * @param state - The state of current application page
+     */
+
     private fun setTitle(state: State){
         val pageTitle = findViewById<TextView>(R.id.pageTitle)
 
@@ -83,8 +96,19 @@ class SearchActivity : AppCompatActivity(){
         }
     }
 
+    /**
+     * @param countryName - The name of country that ISO-3166 country code is wanted for
+     * @return - The ISO-3166 country code for countryName
+     */
+
     private fun getCountryCode(countryName: String) =
             Locale.getISOCountries().find { Locale("", it).displayCountry == countryName }
+
+
+    /**
+     * Extension function of class String that capitalizes first letter of all words
+     * in the given String
+     */
 
     private fun String.capitalizeAllWords(): String = split(" ").map { it.capitalize() }.joinToString(" ")
 }
