@@ -1,9 +1,12 @@
 package com.example.citysearch
 
 import android.content.Intent
+import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.SearchView
 import android.widget.TextView
 import java.util.*
@@ -15,6 +18,7 @@ import java.util.*
 class SearchActivity : AppCompatActivity(){
     private lateinit var state: State
     private lateinit var searchBar: SearchView
+    private lateinit var loadingIndicator: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,6 +26,8 @@ class SearchActivity : AppCompatActivity(){
 
         val escapeHatch = findViewById<Button>(R.id.escapeHatch)
         escapeHatch.setOnClickListener{goToMainPage()}
+
+        loadingIndicator = findViewById(R.id.loadingIndicator)
 
         val searchButton = findViewById<Button>(R.id.searchButton)
         searchButton.setOnClickListener{goToDetailPage()}
@@ -39,7 +45,7 @@ class SearchActivity : AppCompatActivity(){
         searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
             override fun onQueryTextChange(s: String): Boolean {
-                //do nothing
+                errorMessage.visibility = View.GONE
                 return true
             }
 
@@ -60,11 +66,12 @@ class SearchActivity : AppCompatActivity(){
     }
 
     fun goToDetailPage(){
+        loadingIndicator.visibility = View.VISIBLE
         val intent = Intent(this@SearchActivity, DetailActivity::class.java)
         val query = searchBar.query.toString()
         intent.putExtra("State", state)
-        intent.putExtra("ItemCategory", query.capitalizeAllWords())
-        intent.putExtra("CountryCode", getCountryCode(query.capitalizeAllWords()))
+        intent.putExtra("ItemCategory", query.toLowerCase().capitalizeAllWords())
+        intent.putExtra("CountryCode", getCountryCode(query.toLowerCase().capitalizeAllWords()))
         startActivity(intent)
         finish()
     }
