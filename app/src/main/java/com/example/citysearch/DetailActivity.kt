@@ -96,7 +96,7 @@ class DetailActivity : AppCompatActivity(){
                 if (population == null){
                     val city = intent.getStringExtra("ItemCategory") as String
                     fetchJson(citySearchRequest(city))
-                    population = populationMap[city.toUpperCase()].toString()
+                    population = populationMap[itemList[0]].toString()
                 }
                 itemList.add("Population\n$population")
             }
