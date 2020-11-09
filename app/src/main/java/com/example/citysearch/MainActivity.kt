@@ -22,11 +22,11 @@ class MainActivity : AppCompatActivity() {
         citySearchButton.setOnClickListener{searchForCity()}
     }
 
-    fun searchForCity(){
+    private fun searchForCity(){
         goToSearchPage(State.CITYVIEW)
     }
 
-    fun searchForCountry(){
+    private fun searchForCountry(){
         goToSearchPage(State.COUNTRYVIEW)
     }
 

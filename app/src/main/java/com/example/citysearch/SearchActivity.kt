@@ -1,7 +1,6 @@
 package com.example.citysearch
 
 import android.content.Intent
-import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -39,7 +38,7 @@ class SearchActivity : AppCompatActivity(){
         }
 
         state = intent.getSerializableExtra("State") as State
-        prepareContent(state)
+        setTitle(state)
 
         searchBar = findViewById(R.id.searchBar)
         searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -56,16 +55,15 @@ class SearchActivity : AppCompatActivity(){
         })
     }
 
-    fun getCountryCode(countryName: String) =
-            Locale.getISOCountries().find { Locale("", it).displayCountry == countryName }
 
-    fun goToMainPage() {
+
+    private fun goToMainPage() {
         val intent = Intent(this@SearchActivity, MainActivity::class.java)
         startActivity(intent)
         finish()
     }
 
-    fun goToDetailPage(){
+    private fun goToDetailPage(){
         loadingIndicator.visibility = View.VISIBLE
         val intent = Intent(this@SearchActivity, DetailActivity::class.java)
         val query = searchBar.query.toString()
@@ -76,7 +74,7 @@ class SearchActivity : AppCompatActivity(){
         finish()
     }
 
-    fun prepareContent(state: State){
+    private fun setTitle(state: State){
         val pageTitle = findViewById<TextView>(R.id.pageTitle)
 
         when(state){
@@ -85,5 +83,8 @@ class SearchActivity : AppCompatActivity(){
         }
     }
 
-    fun String.capitalizeAllWords(): String = split(" ").map { it.capitalize() }.joinToString(" ")
+    private fun getCountryCode(countryName: String) =
+            Locale.getISOCountries().find { Locale("", it).displayCountry == countryName }
+
+    private fun String.capitalizeAllWords(): String = split(" ").map { it.capitalize() }.joinToString(" ")
 }

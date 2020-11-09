@@ -12,19 +12,19 @@ import android.widget.Button
 import android.widget.GridView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.citysearch.dataclasses.APIHandler
 import com.example.citysearch.dataclasses.Reply
-import com.google.gson.GsonBuilder
-import okhttp3.*
-import java.io.IOException
+import java.lang.IndexOutOfBoundsException
 
 /**
  * Class responsible for containing the functionality for the layout detailpage.xml
  */
 
 class DetailActivity : AppCompatActivity(){
+    private val apiHandler = APIHandler()
     private lateinit var adapter: ArrayAdapter<String>
     private val itemList: MutableList<String> = mutableListOf()
-    private val populationMap: MutableMap<String, Long> = hashMapOf()
+    private val populationMap: MutableMap<String, String> = hashMapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,87 +59,62 @@ class DetailActivity : AppCompatActivity(){
 
         flowPane.adapter = adapter
 
-        fun fetchJson(request: Request) {
-            val client = OkHttpClient()
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) throw IOException("Error: $response")
-                val body = response.body?.string()
-                val gson = GsonBuilder().create()
-                val parsedResponse = gson.fromJson(body, Reply::class.java)
-                if (parsedResponse.totalResultsCount == 0){
-                    invalidQuery(state)
-                }
-                for (CityInfo in parsedResponse.geonames){
-                    itemList.add(CityInfo.name.toUpperCase())
-                    populationMap[CityInfo.name.toUpperCase()] = CityInfo.population
-                }
-            }
-        }
-
-        when(state){
-            State.COUNTRYVIEW -> {
-                flowPane.setOnItemClickListener { adapterView, view, i, l ->
-                    val city = adapterView.getItemAtPosition(i).toString()
-                    val population = populationMap[city]
-                    goToCityDetails(city,population.toString())
-                }
+        var query = ""
+        when(state) {
+            State.COUNTRYVIEW ->{
                 val countryCode = intent.getStringExtra("CountryCode")
                 if (countryCode != null){
-                    fetchJson(countrySearchRequest(countryCode))
+                    query = countryCode
+                    flowPane.setOnItemClickListener { adapterView, view, i, l ->
+                        val city = adapterView.getItemAtPosition(i).toString()
+                        val population = populationMap[city]
+                        goToCityDetails(city,population.toString())
+                    }
                 }
                 else{
                     invalidQuery(state)
                 }
             }
             State.CITYVIEW ->{
-                var population = intent.getStringExtra("Population")
-                if (population == null){
-                    val city = intent.getStringExtra("ItemCategory") as String
-                    fetchJson(citySearchRequest(city))
-                    population = populationMap[itemList[0]].toString()
+                itemList.add("Population")
+                if (intent.getStringExtra("Population") == null){
+                    query = intent.getStringExtra("ItemCategory") as String
+                } else{
+                    itemList.add(intent.getStringExtra("Population") as String)
                 }
-                itemList.add("Population\n$population")
+
             }
         }
 
+        val dataPairs = apiHandler.fetchContent(state,query)
+
+        if (query != ""){
+            when(state){
+                State.COUNTRYVIEW -> for (Pair in dataPairs){
+                    itemList.add(Pair.first)
+                    populationMap[Pair.first] = Pair.second
+                }
+                State.CITYVIEW ->{
+                    try {
+                        itemList.add(dataPairs[0].second)
+                    }
+                    catch (e: IndexOutOfBoundsException){
+                        invalidQuery(state)
+                    }
+                }
+
+            }
+        }
         adapter.notifyDataSetChanged()
-
-
     }
 
-    fun countrySearchRequest(countryCode: String): Request{
-        return Request.Builder().url(HttpUrl.Builder()
-                    .scheme("https")
-                    .host("secure.geonames.org")
-                    .addPathSegment("search")
-                    .addQueryParameter("country", countryCode)
-                    .addQueryParameter("featureClass", "P")
-                    .addQueryParameter("maxRows", "5")
-                    .addQueryParameter("type", "json")
-                    .addQueryParameter("orderby", "population")
-                    .addQueryParameter("username", "weknowit").build().toString()).build()
-    }
-
-    fun citySearchRequest(city: String): Request{
-        return Request.Builder().url(HttpUrl.Builder()
-                .scheme("https")
-                .host("secure.geonames.org")
-                .addPathSegment("search")
-                .addQueryParameter("name_equals", city)
-                .addQueryParameter("featureClass", "P")
-                .addQueryParameter("maxRows", "1")
-                .addQueryParameter("type", "json")
-                .addQueryParameter("orderby", "population")
-                .addQueryParameter("username", "weknowit").build().toString()).build()
-    }
-
-    fun goToMainPage() {
+    private fun goToMainPage() {
         val intent = Intent(this@DetailActivity, MainActivity::class.java)
         startActivity(intent)
         finish()
     }
 
-    fun goToCityDetails(city: String, population: String){
+    private fun goToCityDetails(city: String, population: String){
         val intent = Intent(this@DetailActivity, DetailActivity::class.java)
         intent.putExtra("State", State.CITYVIEW)
         intent.putExtra("City", city)
@@ -147,7 +122,7 @@ class DetailActivity : AppCompatActivity(){
         startActivity(intent)
         finish()
     }
-    fun invalidQuery(state: State){
+    private fun invalidQuery(state: State){
         val intent = Intent(this@DetailActivity, SearchActivity::class.java)
         intent.putExtra("State", state)
         val errorMessage = when(state){
@@ -159,10 +134,15 @@ class DetailActivity : AppCompatActivity(){
         finish()
     }
 
-    fun setTitle(state: State){
+    private fun setTitle(state: State){
         val detailTitle = findViewById<TextView>(R.id.detailTitle)
         when(state){
-            State.CITYVIEW -> detailTitle.text = intent.getStringExtra("City")
+            State.CITYVIEW -> detailTitle.text = if(intent.getStringExtra("City") == null){
+                intent.getStringExtra("ItemCategory")
+            }
+            else{
+                intent.getStringExtra("City")
+            }
             State.COUNTRYVIEW -> detailTitle.text = intent.getStringExtra("ItemCategory")
         }
     }
