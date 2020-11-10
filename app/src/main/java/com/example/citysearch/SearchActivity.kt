@@ -19,12 +19,17 @@ class SearchActivity : AppCompatActivity(){
     private lateinit var searchBar: SearchView
     private lateinit var loadingIndicator: ProgressBar
 
+    /**
+     * Initializes all components in this Activity and their functionality
+     */
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.searchpage)
 
-        val escapeHatch = findViewById<Button>(R.id.escapeHatch)
-        escapeHatch.setOnClickListener{goToMainPage()}
+        val actionbar = supportActionBar
+        actionbar!!.title = "CityPop"
+        actionbar.setDisplayHomeAsUpEnabled(true)
 
         loadingIndicator = findViewById(R.id.loadingIndicator)
 
@@ -53,6 +58,15 @@ class SearchActivity : AppCompatActivity(){
                 return true
             }
         })
+    }
+
+    /**
+     * Switches page to a new MainActivity when the back button on actionbar is pressed
+     */
+
+    override fun onSupportNavigateUp(): Boolean {
+        goToMainPage()
+        return true
     }
 
 

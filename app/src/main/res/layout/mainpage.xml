@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="50dp"
         android:layout_marginStart="300dp"
-        android:layout_marginTop="350dp"
+        android:layout_marginTop="400dp"
         android:text="CityPop"
         android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
