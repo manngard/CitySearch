@@ -11,6 +11,10 @@ import android.widget.Button
 
 class MainActivity : AppCompatActivity() {
 
+    /**
+     * Initializes all components in this Activity and their functionality
+     */
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.mainpage)
@@ -43,6 +47,7 @@ class MainActivity : AppCompatActivity() {
      *
      * @param state - The state representing either searching for a country or a city
      */
+
     private fun goToSearchPage(state: State){
         val intent = Intent(this@MainActivity,SearchActivity::class.java)
         intent.putExtra("State", state)

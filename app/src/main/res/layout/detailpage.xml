@@ -12,7 +12,7 @@
         android:layout_height="115dp"
         android:layout_margin="50dp"
         android:layout_marginStart="300dp"
-        android:layout_marginTop="350dp"
+        android:layout_marginTop="400dp"
         android:text="pageTitle"
         android:textAlignment="center"
         android:textSize="36sp"
@@ -20,12 +20,6 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/escapeHatch2"
-        android:layout_width="88dp"
-        android:layout_height="48dp"
-        android:text="back" />
 
     <GridView
         android:id="@+id/flowPane"
@@ -38,7 +32,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,12 +8,10 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.GridView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.citysearch.dataclasses.APIHandler
-import java.lang.IndexOutOfBoundsException
 
 /**
  * Class responsible for containing the functionality for the layout detailpage.xml
@@ -25,6 +23,10 @@ class DetailActivity : AppCompatActivity(){
     private val itemList: MutableList<String> = mutableListOf()
     private val populationMap: MutableMap<String, String> = hashMapOf()
 
+    /**
+     * Initializes all components in this Activity and their functionality
+     */
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.detailpage)
@@ -32,13 +34,15 @@ class DetailActivity : AppCompatActivity(){
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
 
-        val escapeHatch2 = findViewById<Button>(R.id.escapeHatch2)
-        escapeHatch2.setOnClickListener{goToMainPage()}
+        val actionbar = supportActionBar
+        actionbar!!.title = "CityPop"
+        actionbar.setDisplayHomeAsUpEnabled(true)
 
         val state = intent.getSerializableExtra("State") as State
         setTitle(state)
 
         val flowPane = findViewById<GridView>(R.id.flowPane)
+        flowPane.verticalSpacing = 15
 
         adapter = object : ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1,itemList) {
@@ -68,6 +72,7 @@ class DetailActivity : AppCompatActivity(){
                         val city = adapterView.getItemAtPosition(i).toString()
                         val population = populationMap[city]
                         goToCityDetails(city,population.toString())
+                        view.alpha = 0.5f
                     }
                 }
                 else{
@@ -75,11 +80,10 @@ class DetailActivity : AppCompatActivity(){
                 }
             }
             State.CITYVIEW ->{
-                itemList.add("Population")
                 if (intent.getStringExtra("Population") == null){
                     query = intent.getStringExtra("ItemCategory") as String
                 } else{
-                    itemList.add(intent.getStringExtra("Population") as String)
+                    itemList.add("Population\n" + formatPopulation(intent.getStringExtra("Population") as String))
                 }
 
             }
@@ -95,7 +99,7 @@ class DetailActivity : AppCompatActivity(){
                 }
                 State.CITYVIEW ->{
                     try {
-                        itemList.add(dataPairs[0].second)
+                        itemList.add("Population\n" + formatPopulation(dataPairs[0].second))
                     }
                     catch (e: IndexOutOfBoundsException){
                         invalidQuery(state)
@@ -105,6 +109,15 @@ class DetailActivity : AppCompatActivity(){
             }
         }
         adapter.notifyDataSetChanged()
+    }
+
+    /**
+     * Switches page to a new MainActivity when the back button on actionbar is pressed
+     */
+
+    override fun onSupportNavigateUp(): Boolean {
+        goToMainPage()
+        return true
     }
 
     /**
@@ -168,5 +181,27 @@ class DetailActivity : AppCompatActivity(){
             }
             State.COUNTRYVIEW -> detailTitle.text = intent.getStringExtra("ItemCategory")
         }
+    }
+
+    /**
+     * Function to format a populationNumber before using in UI
+     *
+     * @param populationNumber - The string to be formatted
+     * @return - The String populationNumber formatted so there is one space before every segment
+     * of three numbers starting at the end of the String
+     */
+
+    private fun formatPopulation(populationNumber: String): String{
+        val reversed = populationNumber.reversed()
+        val formatedString = StringBuilder()
+        var index = 0;
+        for (char in reversed){
+            if (index % 3 == 0){
+                formatedString.append(" ")
+            }
+            formatedString.append(char)
+            index++
+        }
+        return formatedString.toString().reversed().trim()
     }
 }
